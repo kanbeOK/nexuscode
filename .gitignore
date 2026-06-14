@@ -7,8 +7,8 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-node_modules/
-web/.next/
+**/node_modules/
+**/.next/
 web/out/
 *.log
 .DS_Store
