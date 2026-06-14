@@ -1,0 +1,15 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.nexuscode/
+*.egg-info/
+dist/
+build/
+node_modules/
+web/.next/
+web/out/
+*.log
+.DS_Store
+Thumbs.db

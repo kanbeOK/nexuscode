@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 226, 232, 240;
+  --background-start-rgb: 10, 15, 26;
+  --background-end-rgb: 17, 24, 39;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(var(--background-end-rgb))
+  ),
+  rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-nexus-card border border-nexus-border rounded-xl p-6 transition-all duration-200;
+  }
+
+  .card:hover {
+    @apply border-nexus-accent/30 shadow-lg shadow-nexus-accent/5;
+  }
+
+  .badge {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-green {
+    @apply badge bg-nexus-green/10 text-nexus-green border border-nexus-green/20;
+  }
+
+  .badge-blue {
+    @apply badge bg-nexus-accent/10 text-nexus-accent border border-nexus-accent/20;
+  }
+
+  .badge-purple {
+    @apply badge bg-nexus-purple/10 text-nexus-purple border border-nexus-purple/20;
+  }
+
+  .badge-orange {
+    @apply badge bg-nexus-orange/10 text-nexus-orange border border-nexus-orange/20;
+  }
+
+  .badge-red {
+    @apply badge bg-nexus-red/10 text-nexus-red border border-nexus-red/20;
+  }
+
+  .badge-cyan {
+    @apply badge bg-nexus-cyan/10 text-nexus-cyan border border-nexus-cyan/20;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-nexus-card border border-nexus-border rounded-lg text-nexus-text placeholder-nexus-dim focus:outline-none focus:border-nexus-accent focus:ring-1 focus:ring-nexus-accent/50 transition-colors;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-nexus-accent hover:bg-nexus-accent/80 text-white font-medium rounded-lg transition-colors;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-nexus-card border border-nexus-border hover:border-nexus-accent/50 text-nexus-text font-medium rounded-lg transition-colors;
+  }
+
+  .glow-border {
+    @apply border border-nexus-accent/30 shadow-lg shadow-nexus-accent/10;
+  }
+
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-active {
+    @apply status-dot bg-nexus-green animate-pulse;
+  }
+
+  .status-idle {
+    @apply status-dot bg-nexus-orange;
+  }
+
+  .status-processing {
+    @apply status-dot bg-nexus-accent animate-pulse;
+  }
+
+  .status-error {
+    @apply status-dot bg-nexus-red;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #1e3a5f #111827;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #111827;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #1e3a5f;
+    border-radius: 3px;
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-nexus-accent to-nexus-green;
+}
+
+.glass-effect {
+  @apply bg-nexus-surface/80 backdrop-blur-md border border-white/5;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "nexuscode",
+  "version": "1.0.0",
+  "description": "Multi-Agent Software Development Pipeline powered by Band.ai",
+  "private": true,
+  "scripts": {
+    "dev": "python -m nexuscore.demo",
+    "start": "python -m nexuscore.main",
+    "test": "python -m pytest nexuscore/tests/ -v",
+    "lint": "python -m ruff check nexuscore/",
+    "web": "cd web && npm run dev"
+  },
+  "keywords": [
+    "multi-agent",
+    "band-ai",
+    "software-development",
+    "hackathon"
+  ],
+  "author": "NexusCode Labs",
+  "license": "MIT"
+}

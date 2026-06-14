@@ -1,0 +1,57 @@
+{
+  "planner": {
+    "agent_id": "92692755-7d2a-4c8a-99dc-3716b6322adf",
+    "api_key": "band_a_1781405777_U2-YKi8RGCWal_jnNMsc_rC6x0N7_nCi",
+    "handle": "@lamt78789/nexusplanner"
+  },
+  "architect": {
+    "agent_id": "be36913d-2680-4ccb-b46d-b318e369f907",
+    "api_key": "band_a_1781405869_gd1GktJC7S77qoUYfxcpfg5NueYeh73_",
+    "handle": "@lamt78789/nexusarchitect"
+  },
+  "developer": {
+    "agent_id": "8becbf52-14e3-4a69-b2eb-c438c514bb23",
+    "api_key": "band_a_1781405948_5TQCnjjTJBhNyWsoA0P4yVenUb3cX3o-",
+    "handle": "@lamt78789/nexusdeveloper"
+  },
+  "reviewer": {
+    "agent_id": "14fd5980-9d04-427d-aa9c-9bd6a50b0953",
+    "api_key": "band_a_1781405982_S688roeEK0W9J0KZcDi0RRHG2_eyN1J_",
+    "handle": "@lamt78789/nexusreviewer"
+  },
+  "red_teamer": {
+    "agent_id": "eb1638c1-57cc-4475-baee-0c4993f76ee5",
+    "api_key": "band_a_1781406016_GLt4wEBbo05N56u54SgXP-KbIQTQQEnc",
+    "handle": "@lamt78789/nexusredteamer"
+  },
+  "verifier": {
+    "agent_id": "0ead93b2-9c50-4ca9-99bf-64d51b483b94",
+    "api_key": "band_a_1781406046_WkLz8itP9meUg0Pft4dEXKvl_N8gd1-n",
+    "handle": "@lamt78789/nexusverifier"
+  },
+  "qa": {
+    "agent_id": "272e8eae-dd7b-4ee0-b39a-6dbe3c4c9176",
+    "api_key": "band_a_1781406073_Nk-dvyTMhY5zS_OwCntzN0JXrpF95tLo",
+    "handle": "@lamt78789/nexusqa"
+  },
+  "devops": {
+    "agent_id": "573a725e-7649-45e2-9261-7b87295b16df",
+    "api_key": "band_a_1781406103_dj4QZ6ywtAJLE6reqW0f1qhDUFuzOIXZ",
+    "handle": "@lamt78789/nexusdevops"
+  },
+  "scribe": {
+    "agent_id": "baaf961b-d60c-48a4-8c53-f2c538f88dfa",
+    "api_key": "band_a_1781406147_L0YCVE7qZBLNNbfNBDAr9mIrGIELM68T",
+    "handle": "@lamt78789/nexusscribe"
+  },
+  "adjudicator": {
+    "agent_id": "8ac093f0-f85f-480c-97d9-4fb62956c877",
+    "api_key": "band_a_1781406174_3jSIvHe99oKZCPbZiu14YecEWDlPDTIC",
+    "handle": "@lamt78789/nexusadjudicator"
+  },
+  "human_gate": {
+    "agent_id": "9dfea507-c5a1-43e6-a216-700abe0bb39f",
+    "api_key": "band_a_1781406201_gJjg_OcZtYWCl_QvhEhdfl-_FQSrL6rX",
+    "handle": "@lamt78789/nexushumangate"
+  }
+}
