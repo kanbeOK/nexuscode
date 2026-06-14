@@ -1,105 +1,280 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
 import { MetricsData } from '@/lib/types';
 
 interface MetricsDashboardProps {
   metrics: MetricsData;
 }
 
+function AnimatedCounter({ value, duration = 1500, prefix = '', suffix = '' }: {
+  value: number;
+  duration?: number;
+  prefix?: string;
+  suffix?: string;
+}) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const startTimeRef = useRef<number>(0);
+  const animRef = useRef<number>(0);
+
+  useEffect(() => {
+    startTimeRef.current = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - startTimeRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      setDisplayValue(Math.round(eased * value));
+      if (progress < 1) {
+        animRef.current = requestAnimationFrame(animate);
+      }
+    };
+    animRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [value, duration]);
+
+  return <span className="font-mono tabular-nums">{prefix}{displayValue.toLocaleString()}{suffix}</span>;
+}
+
+function ProgressRing({ value, size = 56, strokeWidth = 4, color = '#00e5ff', label }: {
+  value: number;
+  size?: number;
+  strokeWidth?: number;
+  color?: string;
+  label: string;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="-rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.04)"
+            strokeWidth={strokeWidth}
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={color}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            style={{
+              filter: `drop-shadow(0 0 6px ${color}60)`,
+              transition: 'stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-xs font-bold font-mono" style={{ color }}>{Math.round(value)}%</span>
+        </div>
+      </div>
+      <span className="text-[10px] text-nexus-dim uppercase tracking-wider">{label}</span>
+    </div>
+  );
+}
+
+function Sparkline({ data, color = '#00e5ff', width = 80, height = 32 }: {
+  data: number[];
+  color?: string;
+  width?: number;
+  height?: number;
+}) {
+  const max = Math.max(...data, 1);
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - (v / max) * (height - 4) - 2;
+    return `${x},${y}`;
+  }).join(' ');
+
+  const areaPoints = `0,${height} ${points} ${width},${height}`;
+
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <defs>
+        <linearGradient id={`spark-${color.replace('#', '')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points={areaPoints}
+        fill={`url(#spark-${color.replace('#', '')})`}
+      />
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ filter: `drop-shadow(0 0 4px ${color}60)` }}
+      />
+    </svg>
+  );
+}
+
 export default function MetricsDashboard({ metrics }: MetricsDashboardProps) {
-  const completionRate = ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1);
+  const completionRate = ((metrics.completedTasks / metrics.totalTasks) * 100);
+
+  const sparkData1 = [23, 45, 32, 56, 41, 67, 52, 78, 63, 89, 74, 95];
+  const sparkData2 = [12, 19, 15, 22, 18, 25, 20, 28, 24, 31, 27, 34];
+  const sparkData3 = [5, 8, 6, 11, 9, 14, 12, 16, 13, 18, 15, 20];
 
   const metricCards = [
     {
       label: 'Total Tasks',
-      value: metrics.totalTasks.toLocaleString(),
-      subtext: `${completionRate}% completed`,
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      ),
-      color: 'text-nexus-accent',
-      bg: 'bg-nexus-accent/10',
+      value: metrics.totalTasks,
+      color: '#00e5ff',
+      gradient: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(0, 229, 255, 0.02))',
+      borderColor: 'rgba(0, 229, 255, 0.15)',
+      sparkData: sparkData1,
+      subtext: `${metrics.totalTasks - metrics.completedTasks} pending`,
     },
     {
-      label: 'Completed Tasks',
-      value: metrics.completedTasks.toLocaleString(),
-      subtext: `${metrics.totalTasks - metrics.completedTasks} in progress`,
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-      color: 'text-nexus-green',
-      bg: 'bg-nexus-green/10',
+      label: 'Completed',
+      value: metrics.completedTasks,
+      color: '#00ff88',
+      gradient: 'linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 255, 136, 0.02))',
+      borderColor: 'rgba(0, 255, 136, 0.15)',
+      sparkData: sparkData2,
+      subtext: `${completionRate.toFixed(1)}% rate`,
     },
     {
       label: 'Active Workflows',
-      value: metrics.activeWorkflows.toString(),
-      subtext: 'Running in parallel',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      ),
-      color: 'text-nexus-purple',
-      bg: 'bg-nexus-purple/10',
+      value: metrics.activeWorkflows,
+      color: '#a855f7',
+      gradient: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(168, 85, 247, 0.02))',
+      borderColor: 'rgba(168, 85, 247, 0.15)',
+      sparkData: sparkData3,
+      subtext: 'running now',
     },
     {
-      label: 'Avg Response Time',
-      value: `${metrics.avgResponseTime}s`,
-      subtext: 'Across all agents',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: 'text-nexus-cyan',
-      bg: 'bg-nexus-cyan/10',
+      label: 'Avg Response',
+      value: parseFloat(metrics.avgResponseTime.toString()),
+      color: '#00e5ff',
+      gradient: 'linear-gradient(135deg, rgba(0, 229, 255, 0.08), rgba(168, 85, 247, 0.02))',
+      borderColor: 'rgba(0, 229, 255, 0.12)',
+      sparkData: sparkData1,
+      subtext: 'seconds',
+      suffix: 's',
     },
     {
       label: 'Success Rate',
-      value: `${metrics.successRate}%`,
-      subtext: 'System reliability',
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: 'text-nexus-green',
-      bg: 'bg-nexus-green/10',
+      value: metrics.successRate,
+      color: '#00ff88',
+      gradient: 'linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(0, 229, 255, 0.02))',
+      borderColor: 'rgba(0, 255, 136, 0.12)',
+      sparkData: sparkData2,
+      subtext: 'system reliability',
+      suffix: '%',
     },
     {
       label: 'Tokens Used',
-      value: `${(metrics.tokensUsed / 1000000).toFixed(1)}M`,
+      value: Math.round(metrics.tokensUsed / 1000000),
+      color: '#ff9100',
+      gradient: 'linear-gradient(135deg, rgba(255, 145, 0, 0.08), rgba(255, 145, 0, 0.02))',
+      borderColor: 'rgba(255, 145, 0, 0.12)',
+      sparkData: sparkData3,
       subtext: `Est. $${metrics.costEstimate.toFixed(2)}`,
-      icon: (
-        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      color: 'text-nexus-orange',
-      bg: 'bg-nexus-orange/10',
+      suffix: 'M',
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-      {metricCards.map((metric, index) => (
-        <div
-          key={metric.label}
-          className="card p-4 animate-slide-up"
-          style={{ animationDelay: `${index * 50}ms` }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`p-2 rounded-lg ${metric.bg}`}>
-              <div className={metric.color}>{metric.icon}</div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {metricCards.map((metric, index) => (
+          <div
+            key={metric.label}
+            className="glass-card p-4 group relative"
+            style={{
+              animation: `slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 80}ms both`,
+            }}
+          >
+            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{
+              background: `radial-gradient(circle at 50% 50%, ${metric.color}10, transparent 70%)`,
+            }}></div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] text-nexus-dim uppercase tracking-wider font-medium">{metric.label}</span>
+                <Sparkline data={metric.sparkData} color={metric.color} width={60} height={24} />
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black" style={{ color: metric.color }}>
+                  <AnimatedCounter
+                    value={metric.value}
+                    suffix={metric.suffix || ''}
+                    duration={1800 + index * 200}
+                  />
+                </span>
+              </div>
+
+              <p className="text-[10px] text-nexus-dim mt-1.5 font-mono">{metric.subtext}</p>
             </div>
           </div>
-          <p className="text-2xl font-bold text-white">{metric.value}</p>
-          <p className="text-sm text-nexus-muted mt-1">{metric.label}</p>
-          <p className="text-xs text-nexus-dim mt-0.5">{metric.subtext}</p>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="glass-card p-5 flex items-center gap-5">
+          <ProgressRing value={completionRate} size={64} strokeWidth={5} color="#00e5ff" label="Tasks" />
+          <div>
+            <p className="text-xs text-nexus-dim uppercase tracking-wider mb-1">Completion Rate</p>
+            <p className="text-xl font-bold neon-text font-mono">{completionRate.toFixed(1)}%</p>
+            <p className="text-[10px] text-nexus-dim mt-0.5">{metrics.completedTasks} of {metrics.totalTasks}</p>
+          </div>
         </div>
-      ))}
+
+        <div className="glass-card p-5 flex items-center gap-5">
+          <ProgressRing value={metrics.successRate} size={64} strokeWidth={5} color="#00ff88" label="Rate" />
+          <div>
+            <p className="text-xs text-nexus-dim uppercase tracking-wider mb-1">System Reliability</p>
+            <p className="text-xl font-bold font-mono" style={{ color: '#00ff88' }}>{metrics.successRate}%</p>
+            <p className="text-[10px] text-nexus-dim mt-0.5">across all agents</p>
+          </div>
+        </div>
+
+        <div className="glass-card p-5 flex items-center gap-5">
+          <ProgressRing value={Math.min((metrics.activeWorkflows / 10) * 100, 100)} size={64} strokeWidth={5} color="#a855f7" label="Active" />
+          <div>
+            <p className="text-xs text-nexus-dim uppercase tracking-wider mb-1">Parallel Workflows</p>
+            <p className="text-xl font-bold font-mono" style={{ color: '#a855f7' }}>{metrics.activeWorkflows}</p>
+            <p className="text-[10px] text-nexus-dim mt-0.5">running in parallel</p>
+          </div>
+        </div>
+
+        <div className="glass-card p-5">
+          <p className="text-xs text-nexus-dim uppercase tracking-wider mb-3">Cost Estimate</p>
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-2xl font-black font-mono" style={{ color: '#ff9100' }}>
+              <AnimatedCounter value={Math.round(metrics.costEstimate * 100)} duration={2000} prefix="$" suffix="" />
+            </span>
+          </div>
+          <div className="h-1.5 bg-nexus-bg/80 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: `${Math.min((metrics.costEstimate / 100) * 100, 100)}%`,
+                background: 'linear-gradient(90deg, #ff9100, #ff3d71)',
+                boxShadow: '0 0 10px rgba(255, 145, 0, 0.4)',
+              }}
+            ></div>
+          </div>
+          <p className="text-[10px] text-nexus-dim mt-1.5 font-mono">{(metrics.tokensUsed / 1000000).toFixed(1)}M tokens</p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+'use client';
+
 import { AuditEntry } from '@/lib/types';
 
 interface AuditLogProps {
@@ -5,110 +7,111 @@ interface AuditLogProps {
   onSelectEntry: (entry: AuditEntry) => void;
 }
 
-export default function AuditLog({ entries, onSelectEntry }: AuditLogProps) {
-  const agentData: Record<string, { name: string; avatar: string }> = {
-    planner: { name: 'NexusPlanner', avatar: '🎯' },
-    architect: { name: 'NexusArchitect', avatar: '🏗️' },
-    developer: { name: 'NexusDeveloper', avatar: '💻' },
-    reviewer: { name: 'NexusReviewer', avatar: '🔍' },
-    redteamer: { name: 'NexusRedTeam', avatar: '🛡️' },
-    qa: { name: 'NexusQA', avatar: '🧪' },
-    devops: { name: 'NexusDevOps', avatar: '🚀' },
-    scribe: { name: 'NexusScribe', avatar: '📝' },
-    debugger: { name: 'NexusDebugger', avatar: '🐛' },
-    optimizer: { name: 'NexusOptimizer', avatar: '⚡' },
-    integrator: { name: 'NexusIntegrator', avatar: '🔗' },
-  };
+const agentData: Record<string, { name: string; avatar: string; color: string }> = {
+  planner: { name: 'NexusPlanner', avatar: '🎯', color: '#3b82f6' },
+  architect: { name: 'NexusArchitect', avatar: '🏗️', color: '#a855f7' },
+  developer: { name: 'NexusDeveloper', avatar: '💻', color: '#00e5ff' },
+  reviewer: { name: 'NexusReviewer', avatar: '🔍', color: '#00ff88' },
+  redteamer: { name: 'NexusRedTeam', avatar: '🛡️', color: '#ff3d71' },
+  qa: { name: 'NexusQA', avatar: '🧪', color: '#ff9100' },
+  devops: { name: 'NexusDevOps', avatar: '🚀', color: '#6366f1' },
+  scribe: { name: 'NexusScribe', avatar: '📝', color: '#f472b6' },
+  debugger: { name: 'NexusDebugger', avatar: '🐛', color: '#f87171' },
+  optimizer: { name: 'NexusOptimizer', avatar: '⚡', color: '#fbbf24' },
+  integrator: { name: 'NexusIntegrator', avatar: '🔗', color: '#2dd4bf' },
+};
 
-  const getActionBadge = (action: string) => {
-    if (action.includes('created') || action.includes('generated')) {
-      return 'badge-green';
-    }
-    if (action.includes('review') || action.includes('scan')) {
-      return 'badge-blue';
-    }
-    if (action.includes('test') || action.includes('verified')) {
-      return 'badge-purple';
-    }
-    if (action.includes('deploy')) {
-      return 'badge-cyan';
-    }
-    if (action.includes('error') || action.includes('failed')) {
-      return 'badge-red';
-    }
-    return 'badge-orange';
+export default function AuditLog({ entries, onSelectEntry }: AuditLogProps) {
+  const getActionColor = (action: string) => {
+    if (action.includes('created') || action.includes('generated')) return '#00ff88';
+    if (action.includes('review') || action.includes('scan')) return '#00e5ff';
+    if (action.includes('test') || action.includes('verified')) return '#a855f7';
+    if (action.includes('deploy')) return '#6366f1';
+    if (action.includes('error') || action.includes('failed')) return '#ff3d71';
+    return '#ff9100';
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {entries.map((entry, index) => {
-        const agent = agentData[entry.agent] || { name: entry.agent, avatar: '🤖' };
+        const agent = agentData[entry.agent] || { name: entry.agent, avatar: '🤖', color: '#7a8baa' };
+        const actionColor = getActionColor(entry.action);
 
         return (
           <div
             key={entry.id}
-            className="p-4 rounded-xl bg-nexus-bg border border-nexus-border hover:border-nexus-accent/30 transition-all duration-200 cursor-pointer animate-slide-up"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className="glass-card p-4 cursor-pointer group relative"
+            style={{
+              animation: `slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 40}ms both`,
+            }}
             onClick={() => onSelectEntry(entry)}
           >
-            <div className="flex items-start gap-4">
+            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
+              background: `radial-gradient(circle at 50% 50%, ${agent.color}08, transparent 60%)`,
+            }}></div>
+
+            <div className="flex items-start gap-4 relative z-10">
               <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-nexus-card border border-nexus-border flex items-center justify-center text-lg">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-transform duration-300 group-hover:scale-110"
+                  style={{
+                    background: `${agent.color}12`,
+                    border: `1px solid ${agent.color}25`,
+                    boxShadow: `0 0 10px ${agent.color}10`,
+                  }}
+                >
                   {agent.avatar}
                 </div>
                 {index < entries.length - 1 && (
-                  <div className="w-0.5 h-8 bg-nexus-border mt-2"></div>
+                  <div className="w-[2px] h-6 mt-2 rounded-full" style={{
+                    background: `linear-gradient(180deg, ${agent.color}30, transparent)`,
+                  }}></div>
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <span className="font-medium text-white">{agent.name}</span>
-                    <span className={`badge ${getActionBadge(entry.action)}`}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-sm font-semibold" style={{ color: agent.color }}>{agent.name}</span>
+                    <span
+                      className="px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-wide uppercase"
+                      style={{
+                        background: `${actionColor}12`,
+                        color: actionColor,
+                        border: `1px solid ${actionColor}20`,
+                      }}
+                    >
                       {formatAction(entry.action)}
                     </span>
                   </div>
-                  <span className="text-xs text-nexus-muted">
+                  <span className="text-[10px] text-nexus-dim font-mono">
                     {new Date(entry.timestamp).toLocaleString()}
                   </span>
                 </div>
 
-                <p className="text-sm text-nexus-text mb-3">{entry.details}</p>
+                <p className="text-sm text-nexus-text/80 mb-2.5 leading-relaxed">{entry.details}</p>
 
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-4 h-4 text-nexus-dim"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-                      />
-                    </svg>
-                    <span className="text-xs text-nexus-dim font-mono truncate max-w-[200px]">
-                      {entry.hash.substring(0, 20)}...
-                    </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="hash-text truncate max-w-[180px]">{entry.hash.substring(0, 20)}...</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-nexus-dim">Chain:</span>
-                    <span className="text-xs text-nexus-dim font-mono">
-                      {entry.previousHash.substring(0, 8)}→
-                    </span>
+                  <div className="flex items-center gap-1.5 text-[10px] text-nexus-dim font-mono">
+                    <span>CHAIN:</span>
+                    <span className="hash-text">{entry.previousHash.substring(0, 8)}→</span>
                   </div>
                 </div>
 
                 {Object.keys(entry.metadata).length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
                     {Object.entries(entry.metadata).map(([key, value]) => (
                       <span
                         key={key}
-                        className="px-2 py-0.5 rounded bg-nexus-card text-xs text-nexus-muted"
+                        className="px-2 py-0.5 rounded-md text-[10px] font-mono"
+                        style={{
+                          background: 'rgba(0, 229, 255, 0.05)',
+                          color: 'rgba(0, 229, 255, 0.6)',
+                          border: '1px solid rgba(0, 229, 255, 0.08)',
+                        }}
                       >
                         {key}: {value}
                       </span>
@@ -125,8 +128,5 @@ export default function AuditLog({ entries, onSelectEntry }: AuditLogProps) {
 }
 
 function formatAction(action: string): string {
-  return action
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return action.split('_').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
